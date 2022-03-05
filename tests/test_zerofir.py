@@ -15,7 +15,7 @@ class User(Zerofir):
 
 
 class Cart(Zerofir):
-    __type: str
+    type: Attribute(str, key='__type')
     id: int = 0
     user: User
     components: List[Component]
@@ -28,34 +28,51 @@ class ZerofirTestCase(unittest.TestCase):
         """ Создание объекта """
         class Man(Zerofir):
             id: int
-            name: str = ""
+            name: str = "Lisp"
+            range: list[int]
+            seek: List[int]
 
-        man = Man(id=10, name="Lisp")
+        man = Man(
+            id=10, 
+            range=[1,2,3],
+            seek=[5,6],
+        )
+        
         self.assertEqual(man.id, 10)
         self.assertEqual(man.name, "Lisp")
-        
+        self.assertEqual(man.range, [1,2,3])
+        self.assertEqual(man.seek, [5,6])
+    
+    def test_validation(self):
+        """ Проверка типов """
+    
+        class Man(Zerofir):
+            id: int
+            
+        man = Man(id=10)
+    
         with self.assertRaises(TypeError):
             man.id = "10"
 
 
-    # def test_serialize(self):
-        # """ Сериализация и десериализация """
+    def test_serialize(self):
+        """ Сериализация """
         
-        # cart = Cart.from_struct({
-            # '__type': 'restrict',
-            # 'user': {
-                # 'id': 45,
-                # 'name': "San",
-            # },
-            # 'components': [
-                # {'id': 1},
-                # {'id': 2},
-            # ],
-        # })
+        cart = Cart.from_struct({
+            '__type': 'restrict',
+            'user': {
+                'id': 45,
+                'name': "San",
+            },
+            'components': [
+                {'id': 1},
+                {'id': 2},
+            ],
+        })
         
-        # self.assertEqual(cart.id, 0)
-        # self.assertEqual(cart.__type, 'default')
-        # self.assertEqual(len(cart.components), 2)
+        self.assertEqual(cart.id, 0)
+        self.assertEqual(cart.type, 'default')
+        self.assertEqual(len(cart.components), 2)
 
     # def test_constructor_params(self):
         # """ Конструктор, нормальные параметры """
