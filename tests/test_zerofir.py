@@ -1,7 +1,6 @@
 import sys
 import unittest
-from typing import Any, Dict, List, Optional
-
+from typing import List, Optional
 from zerofir import Zerofir, Attribute
 
 
@@ -30,18 +29,20 @@ class ZerofirTestCase(unittest.TestCase):
             id: int
             name: str = "Lisp"
             range: list[int]
-            seek: List[int]
+            base: Optional['Man'] = None
+
+        man1 = Man(id=10, range=[])
 
         man = Man(
             id=10, 
             range=[1,2,3],
-            seek=[5,6],
+            base=man1,
         )
         
         self.assertEqual(man.id, 10)
         self.assertEqual(man.name, "Lisp")
         self.assertEqual(man.range, [1,2,3])
-        self.assertEqual(man.seek, [5,6])
+        self.assertEqual(man.base, None)
     
     def test_validation(self):
         """ Проверка типов """
@@ -53,7 +54,6 @@ class ZerofirTestCase(unittest.TestCase):
     
         with self.assertRaises(TypeError):
             man.id = "10"
-
 
     def test_serialize(self):
         """ Сериализация """
@@ -71,30 +71,32 @@ class ZerofirTestCase(unittest.TestCase):
         })
         
         self.assertEqual(cart.id, 0)
-        self.assertEqual(cart.type, 'default')
+        self.assertEqual(cart.type, 'restrict')
         self.assertEqual(len(cart.components), 2)
-
-    # def test_constructor_params(self):
-        # """ Конструктор, нормальные параметры """
-
-    # def test_constructor_kw(self):
-        # """ Конструктор принимает параметры из словаря """
-
-
-        # kw = {
-            # '__type': 'default', 
-            # components: [
-                # {'id': 1},
-                # {'id': 2},
-            # ],
-        # }
-        # cart = Cart(**kw)
-
-        # #self.assertRaises()
-       
-    # def test_constructor_many_params(self):
-        # """ Конструктор """
-
+        
+    def test_unserialize(self):
+        """ Десериализация """
+        cart = Cart(
+            type='restrict',
+            user=User(id=45, name="San"),
+            components=[
+                Component(id=1),
+                Component(id=2),
+            ],
+        )
+                
+        self.assertEqual(cart.to_struct(), {
+            '__type': 'restrict',
+            'id': 0,
+            'user': {
+                'id': 45,
+                'name': "San",
+            },
+            'components': [
+                {'id': 1},
+                {'id': 2},
+            ],
+        })
 
 
 if __name__ == '__main__':
